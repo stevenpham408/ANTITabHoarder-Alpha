@@ -1,0 +1,11 @@
+{
+  "name": "Chrome Tab Management",
+  "version": "1.0",
+  "description": "1st version: Automatically delete marked tabs after a set amount of time",
+  "permissions": ["activeTab", "declarativeContent", "storage", "tabs"],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "manifest_version": 2
+}
