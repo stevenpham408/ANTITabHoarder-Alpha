@@ -1,15 +1,24 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <style>
-      button {
-        height: 30px;
-        width: 30px;
-        outline: none;
-      }
-    </style>
-  </head>
+  <head></head>
   <body>
-    <button id="changeColor"></button>
+    <link rel='stylesheet' type='text/css' href='styles.css'>
+    <header>
+      <button id="changeColor"></button>
+    </header>
+
+    <section>
+      <label id = "yuh" for="fname">Delete tabs after</label>
+      <input type="text" id="fname" name="fname">
+      <select id = "unitOfTime">
+        <option value="min">min
+        <option value="hr">hr
+      </select>
+      <label class="switch">
+        <input id = "toggleInput" type="checkbox">
+        <span class="slider"></span>
+      </label>
+    </section><hr>
+    <script src="popup.js"></script>
   </body>
 </html>
