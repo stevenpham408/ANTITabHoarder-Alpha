@@ -3,26 +3,35 @@
 // found in the LICENSE file.
 
 'use strict';
-var toggle;
-
-let changeColor = document.getElementById('changeColor');
-chrome.storage.sync.get('color', function(data) {
-  changeColor.style.backgroundColor = data.color;
-  changeColor.setAttribute('value', data.color);
+var port = chrome.runtime.connect();
+// event listener for the button inside popup window
+document.addEventListener('DOMContentLoaded', function() {
+  restoreState();
 });
 
+document.getElementById("unitOfTime").addEventListener("change", function(){
+  var d = document.getElementById("unitOfTime");
+  chrome.runtime.sendMessage({varNewUnit: d.value, message: 'User changed time unit!'});
+});
 
+document.getElementById("toggleInput").addEventListener("change", function(){
+  var d = document.getElementById("toggleInput");
+  chrome.runtime.sendMessage({varNewToggle: d.checked, message: 'User changed toggle value!'})
+});
 
-var selectedTimeUnit = document.getElementById("unitOfTime");
-var selectedTimeUnit_val = selectedTimeUnit.options[selectedTimeUnit.selectedIndex].value;
-var selectedToggleOption = document.getElementById("toggleInput");
-var selectedToggleOption_val = selectedToggleOption.checked;
+document.getElementById("fname").addEventListener("change", function(){
+  var d = document.getElementById("fname");
+  chrome.runtime.sendMessage({varNewNumTime: d.value, message: 'User changed field value!'})
+});
 
-chrome.runtime.sendMessage({varTime: selectedTimeUnit_val, varToggle:selectedToggleOption_val, message: "Sending selected time and toggle option"});
+function restoreState(){
+  var getDocUnitOfTime = document.getElementById("unitOfTime");
+  var getDocToggleInput = document.getElementById("toggleInput");
+  var getFname = document.getElementById("fname");
+  chrome.runtime.getBackgroundPage(function(page) {
+    getDocUnitOfTime.value = page.timeUnit;
+    getDocToggleInput.checked = page.toggle;
+    getFname.value = page.numTime;
+  });
 
-
-// var selectedToggleOption = document.getElementById("toggleInput");
-// // alert(selectedToggleOption.checked);
-// var selectedToggleOption_val = selectedToggleOption.checked;
-// chrome.runtime.sendMessage({varToggle: selectedToggleOption_val, message: "Sending selected toggle option"});
-// // var selectedToggleOption_val = selectedToggleOption.options[selectedToggleOption.selectedIndex].value;
+}
