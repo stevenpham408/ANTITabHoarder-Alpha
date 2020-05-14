@@ -8,16 +8,22 @@
 var port = chrome.runtime.connect();
 
 
-
 // event listener for the button inside popup window
 document.addEventListener('DOMContentLoaded', function() {
+  chrome.runtime.getBackgroundPage(function(page){
+    if(page.toggle2 == false){
+      document.getElementById('myTable').style.display = 'none';
+    }
+    else{
+      document.getElementById('myTable').style.display = 'table';
+    }
+  })
   restoreState();
 });
 
 document.getElementById("unitOfTime").addEventListener("change", function(){
   const d = document.getElementById("unitOfTime");
   chrome.runtime.sendMessage({varNewUnit: d.value, message: 'User changed time unit!'});
-  
 });
 
 document.getElementById("toggleInput").addEventListener("change", function(){
@@ -30,20 +36,32 @@ document.getElementById("fname").addEventListener("change", function(){
   chrome.runtime.sendMessage({varNewNumTime: d.value, message: 'User changed field value!'})
 });
 
+document.getElementById("toggleInput2").addEventListener("change", function(){
+  const d = document.getElementById("toggleInput2");
+  chrome.runtime.sendMessage({varNewToggleMonitoring: d.checked, message: 'User enabled/disabled monitoring!'});
+  toggleTable();
+});
+
 function restoreState(){
   const getDocUnitOfTime = document.getElementById("unitOfTime");
   const getDocToggleInput = document.getElementById("toggleInput");
   const getFname = document.getElementById("fname");
+  const getMonitorToggleInput = document.getElementById("toggleInput2");
   chrome.runtime.getBackgroundPage(function(page) {
     getDocUnitOfTime.value = page.timeUnit;
     getDocToggleInput.checked = page.toggle;
     getFname.value = page.numTime;
+    getMonitorToggleInput.checked = page.toggle2;
   });
 }
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.message == 'User clicked refresh!'){
-      alert("Refresh clicked!");
+function toggleTable()
+{
+   if (document.getElementById("myTable").style.display == "table") {
+     document.getElementById("myTable").style.display="none";
+   }
+
+     else {
+      document.getElementById("myTable").style.display="table";
     }
-  });
+}
