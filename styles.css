@@ -1,5 +1,5 @@
 body {
-  min-height: 300px;
+  min-height: 100px;
   min-width: 400px;
 }
 
@@ -9,84 +9,58 @@ body {
   font-size: 16px;
 }
 
+#TabManager_label{
+  display: inline-block;
+  padding-left: 30px;
+  font-size: 16px;
+}
+
+#unitOfTime{
+  display: inline-block;
+  margin-left: 11px;
+}
+
+#hr1 {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+
+#hr2 {
+  margin-top:15px;
+  border: 0;
+  height: 0.5px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+
+.Tab_Manager_Functionality{
+  padding-top:7px;
+}
+
+#tabManager_switch{
+  margin-left:93px;
+}
+
+table, th, td {
+  border: 1px solid black;
+  text-align: right;
+}
+
+td{
+  white-space: nowrap;
+}
+
+.titleName{
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
 #fname{
   width: 13%;
   margin: 8px 0;
   margin-left: 5px;
   box-sizing: border-box;
   display: inline-block;
-}
-
-#unitOfTime{
-  display: inline-block;
-  margin-left: 11px;
-
-}
-
-/* The switch - the box around the slider */
-.switch {
-  float: right;
-  position: relative;
-  display: inline-block;
-  width: 42px;
-  height: 18px;
-  margin-right: 20px;
-  margin-top: 10px;
-
-}
-
-/* Hide default HTML checkbox */
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* The slider */
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 10px;
-  width: 10px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(24  `px);
-  -ms-transform: translateX(24px);
-  transform: translateX(24px);
-}
-
-hr {
-  border: 0;
-  height: 1px;
-  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
-}
-
-table, th, td {
-  border: 1px solid black;
 }
