@@ -5,7 +5,7 @@
   "permissions": ["activeTab", "tabs", "background"],
   "background": {
     "scripts": ["background.js"],
-    "persistent": false
+    "persistent": true
   },
   "browser_action": {
     "default_popup": "popup.html",
