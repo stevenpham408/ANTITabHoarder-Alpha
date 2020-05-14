@@ -3,10 +3,7 @@
 // found in the LICENSE file.
 
 'use strict';
-
-
 var port = chrome.runtime.connect();
-
 
 // event listener for the button inside popup window
 document.addEventListener('DOMContentLoaded', function() {
@@ -18,28 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('myTable').style.display = 'table';
     }
   })
+  document.getElementById("unitOfTime").addEventListener("change", handleEvent);
+  document.getElementById("fname").addEventListener("change", handleEvent);
+  document.getElementById("toggleInput").addEventListener("change", handleEvent);
+  document.getElementById("toggleInput2").addEventListener("change", handleEvent);
   restoreState();
-});
-
-document.getElementById("unitOfTime").addEventListener("change", function(){
-  const d = document.getElementById("unitOfTime");
-  chrome.runtime.sendMessage({varNewUnit: d.value, message: 'User changed time unit!'});
-});
-
-document.getElementById("toggleInput").addEventListener("change", function(){
-  const d = document.getElementById("toggleInput");
-  chrome.runtime.sendMessage({varNewToggle: d.checked, message: 'User changed toggle value!'})
-});
-
-document.getElementById("fname").addEventListener("change", function(){
-  const d = document.getElementById("fname");
-  chrome.runtime.sendMessage({varNewNumTime: d.value, message: 'User changed field value!'})
-});
-
-document.getElementById("toggleInput2").addEventListener("change", function(){
-  const d = document.getElementById("toggleInput2");
-  chrome.runtime.sendMessage({varNewToggleMonitoring: d.checked, message: 'User enabled/disabled monitoring!'});
-  toggleTable();
 });
 
 function restoreState(){
@@ -55,13 +35,30 @@ function restoreState(){
   });
 }
 
+// Handles event based on its id, used in the event listeners above
+function handleEvent(event){
+  if(event.target.id == 'unitOfTime'){
+    chrome.runtime.sendMessage({varNewUnit: event.target.value, message: 'User changed time unit!'});
+  }
+  else if(event.target.id == 'fname'){
+      chrome.runtime.sendMessage({varNewNumTime: event.target.value, message: 'User changed field value!'})
+  }
+  else if(event.target.id == 'toggleInput'){
+      chrome.runtime.sendMessage({varNewToggle: event.target.checked, message: 'User changed toggle value!'})
+  }
+  else{
+      chrome.runtime.sendMessage({varNewToggleMonitoring: event.target.checked, message: 'User enabled/disabled monitoring!'});
+      toggleTable();
+  }
+}
+
 function toggleTable()
 {
    if (document.getElementById("myTable").style.display == "table") {
      document.getElementById("myTable").style.display="none";
    }
 
-     else {
+   else {
       document.getElementById("myTable").style.display="table";
     }
 }
