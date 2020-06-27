@@ -2,179 +2,151 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 'use strict';
-var timeUnit = 'min';
-var toggle = false;
-var numTime = 0;
-var toggle2 = false;
+import{ start, end } from './modules/time.js';
 
-// # of tabs to delete
-var numTabsToDelete = 0;
 var startTime, endTime;
 
-var numToStop = 0;
-var openTabs = {};
-var lastVisited = {};
+initializeState();
+updateState();
 
-// might be unnecessary considering openTabs, look into this later
-var dateCreated = {};
+function initializeState(){
+	chrome.storage.local.set({timeUnit: 'min'});
+	chrome.storage.local.set({numTime: 0});
+	chrome.storage.local.set({toggle: false});
+	chrome.storage.local.set({toggle2: false});
+	chrome.storage.local.set({lastVisited: {} });
+	chrome.storage.local.set({timeElapsed: {} });
+	chrome.storage.local.set({tabsToDelete: {} });
+}
 
-var timeElapsed = {};
-
-var currentTab = null;
-//var current = null;
-chrome.runtime.onInstalled.addListener(function() {
-	console.log('The extension is running.')
+chrome.runtime.onConnect.addListener(function (externalPort){
+	console.log('Connected.');
+	chrome.tabs.query({currentWindow: true, active: true}, function(arrayTabs){
+		previousTab = arrayTabs[0].id;
+	})
 });
 
-chrome.runtime.onConnect.addListener(function (externalPort) {
-  externalPort.onDisconnect.addListener(function () {
-    console.log("onDisconnect");
-		chrome.tabs.query({currentWindow : true, active: true}, function(arrayTabs){
-			for(const tab of arrayTabs){
-				currentTab = tab.id;
-			}
+chrome.tabs.onCreated.addListener(function(tab){
+		chrome.storage.local.get(null, function(results){
+			if(results.toggle == true){
+			results.tabsToDelete[tab.id] = new Date().toString();
+			chrome.storage.local.set({tabsToDelete: results.tabsToDelete});
+			console.log('Debug #1 ', tab.id, results.tabsToDelete);
+			delayedDelete(tab.id);
+		}
+	})
+});
+
+chrome.tabs.onRemoved.addListener(function(tabID, removeInfo){
+	chrome.storage.local.get(null, function(results){
+		if(results.tabsToDelete.hasOwnProperty(tabID) && results.toggle == true){
+				delete results.tabsToDelete[tabID];
+				chrome.storage.local.set({tabsToDelete: results.tabsToDelete});
+		}
+	});
+});
+
+
+
+function updateState(){
+	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
+		if(request.message == 'User changed time unit!'){
+			chrome.storage.local.set({timeUnit: request.varNewUnit});
+			console.log('Unit of time changed to: ', request.varNewUnit);
+		}
+		else if(request.message == 'User changed field value!'){
+			chrome.storage.local.set({numTime: request.varNewNumTime});
+			console.log('Field value changed. to: ', request.varNewNumTime);
+		}
+		else if(request.message == 'User toggled Delayed Delete!'){
+			chrome.storage.local.set({toggle: request.varNewToggle});
+			console.log('Delay Delete toggle changed to: ', request.varNewToggle);
+		}
+
+		else if(request.message == 'User toggled Tab Monitoring!'){
+			chrome.storage.local.set({toggle2: request.varNewToggleMonitoring});
+			console.log('Tab Monitoring toggle changed to: ', request.varNewToggleMonitoring);
+		}
+
+		else if(request.message == 'Start the timer!'){
+			startTime = start();
+		}
+
+		else if(request.message == 'End the timer!'){
+			chrome.storage.local.get(null, function(results){
+				//alert('1');
+				sendResponse({response: 'Received'});
+			    chrome.tabs.query({currentWindow: true, active: true}, function(arrayTabs){
+			      results.timeElapsed[arrayTabs[0].id] =  results.timeElapsed[arrayTabs[0].id] + end(endTime, startTime);
+			      chrome.storage.local.set({timeElapsed: results.timeElapsed});
+						startTime = start();
+			    })
+			})
+		return true;
+		}
+	});
+}
+
+updateLastVisited();
+function updateLastVisited(){
+// Need to set to work only if toggle is on for monitoring
+	chrome.tabs.onActivated.addListener(function(activeInfo){
+		chrome.storage.local.get(null, function(results){
+				if(results.toggle2 == true){
+					let currentTab = activeInfo.tabId;
+					console.log('Switched to Tab: ', currentTab);
+					results.lastVisited[currentTab] = (new Date()).toJSON();
+					chrome.storage.local.set( {lastVisited: results.lastVisited} );
+
+				}
+			})
 		})
-		start();
+}
 
-		chrome.tabs.onCreated.addListener(function(tab){
-			dateCreated[tab.id] = new Date();
-			if(toggle == true){
-				//console.log("New tab created. Tab ID: ", tab.id);
-				openTabs[tab.id] = new Date();
-				numTabsToDelete = numTabsToDelete + 1;
-				console.log(openTabs[tab.id].toString());
-				delayedDelete(tab.id);
-			}
+updateTimeElapsedOnTabChange();
+function updateTimeElapsedOnTabChange(){
+	chrome.tabs.query({currentWindow: true, active: true}, function(arrayOfTabs){
+		// alert('previous 1 ' + arrayOfTabs[0].id);
+		let previous = arrayOfTabs[0].id;
+		chrome.tabs.onActivated.addListener(function(activeInfo){
 
-			// chrome.tabs.onRemoved.addListener(function(tabID, removeInfo){
-			// 	if(tab.id == tabID && toggle == true){
-			// 		console.log("Tab delete detected");
-			// 		delete openTabs[tabID];
-			// 	}
-			// });
-		});
-		//
-  });
+			let current = activeInfo.tabId;
 
+			chrome.storage.local.get(null, function(results){
 
+				results.timeElapsed[previous] = results.timeElapsed[previous] + end(endTime, startTime);
+				chrome.storage.local.set({timeElapsed: results.timeElapsed});
 
-	chrome.tabs.query({currentWindow : true, active: true}, function(arrayTabs){
-		for(const tab of arrayTabs){
-			console.log("Tab ID: ", tab.id);
-			lastVisited[tab.id] = new Date();
-			if(timeElapsed[tab.id] == undefined){
-				timeElapsed[tab.id] = 0;
-					console.log('val: ', timeElapsed[tab.id]);
-			}
-			else{
-				if(tab.id == currentTab){
-					console.log("Yessir");
-					timeElapsed[tab.id] = timeElapsed[tab.id] + end();
+				// Initialize current tab with 0 if it doesn't have a value
+				if(results.timeElapsed[current] == null || results.timeElapsed[current] == undefined){
+					results.timeElapsed[current] = 0;
+					startTime = start();
+					chrome.storage.local.set({timeElapsed: results.timeElapsed});
 				}
 
-				else{console.log("Nossir")};
-			}
-		}
-	});
-});
-
-// DEBUGGING PURPOSES
-// Activates when user deletes a tab
-chrome.tabs.onRemoved.addListener(function(tabID, removeInfo){
-	console.log("Deleted ", tabID);
-});
-
-// Activates when user toggles on or off for auto-delete functionality
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.message == "User changed toggle value!"){
-			toggle = request.varNewToggle;
-		}
-	});
+				previous = current;
 
 
-// Activates when user modifies time unit from dropdown-menu
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.message == "User changed time unit!"){
-			timeUnit = request.varNewUnit;
-		}
-	});
-
-// Activates when user modifies text field value
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.message == "User changed field value!"){
-			numTime = request.varNewNumTime;
-			//console.log("New field value is: ", numTime)
-		}
-	});
-
-chrome.runtime.onMessage.addListener(
-	function(request, sender, sendResponse){
-		if(request.message == 'User enabled/disabled monitoring!'){
-			console.log("monitoring");
-			toggle2 = request.varNewToggleMonitoring;
-		}
-	}
-)
-
-// Need to set to work only if toggle is on for monitoring
-chrome.tabs.onActivated.addListener(function(activeInfo){
-	var currentTab = activeInfo.tabId;
-	lastVisited[currentTab] = new Date();
-	// let previous = current;
-	// current = activeInfo.tabId;
-	// if(!(previous in timeElapsed)){
-	// 	timeElapsed[previous] = 0;
-	// 	console.log("Not in timeElapsed");
-	// }
-	// timeElapsed[previous] = timeElapsed[previous] + end();
-	// lastVisited[current] = new Date();
-	// start();
-});
-
-
-
+			})
+ 		})
+	})
+}
 // Deletes function after a user-specified amount of time
 function delayedDelete(tabID){
-	var delayedTime;
-	if(timeUnit == "min") { delayedTime = numTime * 60000 };
-	if(timeUnit == "hr")  { delayedTime = numTime * 3600000 }
-	setTimeout(function(){
-		if(tabID in openTabs){
-			chrome.tabs.remove(tabID)
-			//console.log("Time: ", new Date().toString());
-		}
-	}, delayedTime);
-}
+	let delayedTime;
 
-// Starts stopwatch of tab
-function start() {
-  startTime = performance.now();
-};
+	chrome.storage.local.get(null, function(results){
+		if(results.timeUnit == "min") { delayedTime = results.numTime * 60000 };
+		if(results.timeUnit == "hr")  { delayedTime = results.numTime * 3600000 };
+		chrome.storage.local.get(null, function(results){
+			setTimeout(function(){
+				chrome.storage.local.get(null, function(results){
+					if(tabID in results.tabsToDelete){
+						chrome.tabs.remove(tabID)
+					}
+				})
+			}, delayedTime);
 
-// Ends stopwatch of tab
-function end() {
-  endTime = performance.now();
-  let timeDiff = endTime - startTime; //in ms
-  // strip the ms
-  timeDiff /= 1000;
-
-  // get seconds
-  let seconds = Math.round(timeDiff);
-	return seconds;
-}
-
-// Argument: seconds
-// Return: Time in hour::minute::second format
-function sec2time(timeInSeconds) {
-    var pad = function(num, size) { return ('000' + num).slice(size * -1); },
-    time = parseFloat(timeInSeconds).toFixed(3),
-    hours = Math.floor(time / 60 / 60),
-    minutes = Math.floor(time / 60) % 60,
-    seconds = Math.floor(time - minutes * 60),
-    milliseconds = time.slice(-3);
-
-    return pad(hours, 2) + ':' + pad(minutes, 2) + ':' + pad(seconds, 2);
+		})
+	})
 }
