@@ -41,32 +41,56 @@ body {
   margin-left:93px;
 }
 
-table{
+#myTable{
   margin: 0px auto;
-
+  padding-top: 6px;
+  border-collapse: separate;
+  table-layout: fixed;
+  width: 350px;
 }
-table, td {
-  border: 1px solid black;
+
+#title{
+  text-align: left;
+}
+
+td {
+  /* border: 1px solid black; */
   text-align: right;
 }
 
-td{
-  white-space: nowrap;
-}
+/* td{
+} */
 
 .titleName{
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 150px;
+  white-space:nowrap;
+  max-width:120px;
+}
+
+.lastOpened{
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space:nowrap;
+  /* min-width:30px; */
+}
+
+.timeElapsed{
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space:nowrap;
+  /* min-width:30px; */
 }
 
 th{
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space:nowrap;
   text-align: right;
-}
-
-#title{
-  text-align: left;
+  padding-right: 10px;
 }
 
 #fname{
@@ -75,4 +99,8 @@ th{
   margin-left: 5px;
   box-sizing: border-box;
   display: inline-block;
+}
+
+.tab_table{
+  display: none;
 }
