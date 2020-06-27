@@ -1,9 +1,8 @@
 // Copyright 2018 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 'use strict';
-var port = chrome.runtime.connect();
+// var port = chrome.runtime.connect();
 
 // event listener for the button inside popup window
 document.addEventListener('DOMContentLoaded', function() {
@@ -22,16 +21,25 @@ document.addEventListener('DOMContentLoaded', function() {
   restoreState();
 });
 
+
 function restoreState(){
   const getDocUnitOfTime = document.getElementById("unitOfTime");
   const getDocToggleInput = document.getElementById("toggleInput");
   const getFname = document.getElementById("fname");
   const getMonitorToggleInput = document.getElementById("toggleInput2");
-  chrome.runtime.getBackgroundPage(function(page) {
-    getDocUnitOfTime.value = page.timeUnit;
-    getDocToggleInput.checked = page.toggle;
-    getFname.value = page.numTime;
-    getMonitorToggleInput.checked = page.toggle2;
+  chrome.storage.local.get(null, function(results){
+    getDocUnitOfTime.value = results.timeUnit;
+    getFname.value = results.numTime;
+    getDocToggleInput.checked = results.toggle;
+    getMonitorToggleInput.checked = results.toggle2;
+
+    if(getMonitorToggleInput.checked == true){
+      document.getElementsByClassName('tab_table')[0].style.display='table';
+    }
+
+    else {
+      document.getElementsByClassName('tab_table')[0].style.display = 'none';
+    }
   });
 }
 
@@ -44,21 +52,24 @@ function handleEvent(event){
       chrome.runtime.sendMessage({varNewNumTime: event.target.value, message: 'User changed field value!'})
   }
   else if(event.target.id == 'toggleInput'){
-      chrome.runtime.sendMessage({varNewToggle: event.target.checked, message: 'User changed toggle value!'})
+      chrome.runtime.sendMessage({varNewToggle: event.target.checked, message: 'User toggled Delayed Delete!'})
   }
   else{
-      chrome.runtime.sendMessage({varNewToggleMonitoring: event.target.checked, message: 'User enabled/disabled monitoring!'});
+      chrome.runtime.sendMessage({varNewToggleMonitoring: event.target.checked, message: 'User toggled Tab Monitoring!'});
       toggleTable();
   }
 }
 
 function toggleTable()
 {
-   if (document.getElementById("myTable").style.display == "table") {
-     document.getElementById("myTable").style.display="none";
-   }
+  if(document.getElementById("toggleInput2").checked == true)
+  {
+    chrome.runtime.sendMessage({message: 'Tab Monitoring ON'});
+    document.getElementsByClassName('tab_table')[0].style.display='table';
+  }
+  else {
+    chrome.runtime.sendMessage({message: 'Tab Monitoring OFF'});
+    document.getElementsByClassName('tab_table')[0].style.display = 'none';
+  }
 
-   else {
-      document.getElementById("myTable").style.display="table";
-    }
 }
