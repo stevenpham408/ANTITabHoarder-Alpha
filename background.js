@@ -5,10 +5,12 @@
 import{ start, end } from './modules/time.js';
 
 var startTime, endTime;
-
 initializeState();
 updateState();
+updateLastVisited();
+updateTimeElapsedOnTabChange();
 
+// Initialize the states
 function initializeState(){
 	chrome.storage.local.set({timeUnit: 'min'});
 	chrome.storage.local.set({numTime: 0});
@@ -19,13 +21,7 @@ function initializeState(){
 	chrome.storage.local.set({tabsToDelete: {} });
 }
 
-chrome.runtime.onConnect.addListener(function (externalPort){
-	console.log('Connected.');
-	chrome.tabs.query({currentWindow: true, active: true}, function(arrayTabs){
-		previousTab = arrayTabs[0].id;
-	})
-});
-
+// Deletes new tabs after a user-specified delay
 chrome.tabs.onCreated.addListener(function(tab){
 		chrome.storage.local.get(null, function(results){
 			if(results.toggle == true){
@@ -37,6 +33,7 @@ chrome.tabs.onCreated.addListener(function(tab){
 	})
 });
 
+// In the case the user self-deletes the tab before delayedDelete is ran, no errors will be found
 chrome.tabs.onRemoved.addListener(function(tabID, removeInfo){
 	chrome.storage.local.get(null, function(results){
 		if(results.tabsToDelete.hasOwnProperty(tabID) && results.toggle == true){
@@ -47,22 +44,29 @@ chrome.tabs.onRemoved.addListener(function(tabID, removeInfo){
 });
 
 
-
+// Updates the state of the extension if user made any changes to it
 function updateState(){
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
-		if(request.message == 'User changed time unit!'){
+
+		// User changes Delayed Delete settings from min->hr or vice-versa
+ 		if(request.message == 'User changed time unit!'){
 			chrome.storage.local.set({timeUnit: request.varNewUnit});
 			console.log('Unit of time changed to: ', request.varNewUnit);
 		}
+
+		// User changes delay-value to autodelete tabs
 		else if(request.message == 'User changed field value!'){
 			chrome.storage.local.set({numTime: request.varNewNumTime});
 			console.log('Field value changed. to: ', request.varNewNumTime);
 		}
+
+		// User toggles Delayed Delete
 		else if(request.message == 'User toggled Delayed Delete!'){
 			chrome.storage.local.set({toggle: request.varNewToggle});
 			console.log('Delay Delete toggle changed to: ', request.varNewToggle);
 		}
 
+		// User toggles Tab Manager
 		else if(request.message == 'User toggled Tab Monitoring!'){
 			chrome.storage.local.set({toggle2: request.varNewToggleMonitoring});
 			console.log('Tab Monitoring toggle changed to: ', request.varNewToggleMonitoring);
@@ -74,7 +78,6 @@ function updateState(){
 
 		else if(request.message == 'End the timer!'){
 			chrome.storage.local.get(null, function(results){
-				//alert('1');
 				sendResponse({response: 'Received'});
 			    chrome.tabs.query({currentWindow: true, active: true}, function(arrayTabs){
 			      results.timeElapsed[arrayTabs[0].id] =  results.timeElapsed[arrayTabs[0].id] + end(endTime, startTime);
@@ -82,14 +85,14 @@ function updateState(){
 						startTime = start();
 			    })
 			})
+
 		return true;
 		}
 	});
 }
 
-updateLastVisited();
+// Updates the Last Visited column for the current tab
 function updateLastVisited(){
-// Need to set to work only if toggle is on for monitoring
 	chrome.tabs.onActivated.addListener(function(activeInfo){
 		chrome.storage.local.get(null, function(results){
 				if(results.toggle2 == true){
@@ -103,30 +106,29 @@ function updateLastVisited(){
 		})
 }
 
-updateTimeElapsedOnTabChange();
+// Updates the Time Elapsed column for the current tab
 function updateTimeElapsedOnTabChange(){
 	chrome.tabs.query({currentWindow: true, active: true}, function(arrayOfTabs){
-		// alert('previous 1 ' + arrayOfTabs[0].id);
 		let previous = arrayOfTabs[0].id;
 		chrome.tabs.onActivated.addListener(function(activeInfo){
-
+			console.log("Time elapsed onActivated");
 			let current = activeInfo.tabId;
-
 			chrome.storage.local.get(null, function(results){
 
+				// When user changes tabs, we set the new elapsed time to the tab that we switched FROM
 				results.timeElapsed[previous] = results.timeElapsed[previous] + end(endTime, startTime);
 				chrome.storage.local.set({timeElapsed: results.timeElapsed});
 
 				// Initialize current tab with 0 if it doesn't have a value
 				if(results.timeElapsed[current] == null || results.timeElapsed[current] == undefined){
 					results.timeElapsed[current] = 0;
-					startTime = start();
-					chrome.storage.local.set({timeElapsed: results.timeElapsed});
 				}
 
+				// Start a brand new timer for the current tab if it wasn't initialized
+				startTime = start();
+				chrome.storage.local.set({timeElapsed: results.timeElapsed});
+
 				previous = current;
-
-
 			})
  		})
 	})
