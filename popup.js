@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 'use strict';
-// var port = chrome.runtime.connect();
+//var port = chrome.runtime.connect();
 
 // event listener for the button inside popup window
 document.addEventListener('DOMContentLoaded', function() {
