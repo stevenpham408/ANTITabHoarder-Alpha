@@ -54,12 +54,19 @@ body {
 }
 
 td {
-  /* border: 1px solid black; */
   text-align: right;
 }
 
-/* td{
-} */
+tr {
+}
+
+.highlighted{
+  background-color: #ddd;
+}
+
+.unhighlight{
+  background-color: white;
+}
 
 .titleName{
   text-align: left;
@@ -103,4 +110,8 @@ th{
 
 .tab_table{
   display: none;
+}
+
+#myTable_head{
+  pointer-events: none
 }
