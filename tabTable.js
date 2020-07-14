@@ -1,7 +1,5 @@
-import{ sec2time } from './modules/time.js';
-
 'use strict';
-
+import{ sec2time } from './modules/time.js';
 const d = document.getElementById("Tester");
 let tableBody = document.getElementById("myTable_body");
 tableBody.innerHTML = '';
@@ -12,28 +10,32 @@ chrome.storage.local.get(null, function(results){
     chrome.tabs.query({currentWindow: true, active: true}, function(arrayTabs){
       results.lastVisited[arrayTabs[0].id] = (new Date()).toJSON();
       chrome.storage.local.set({lastVisited: results.lastVisited});
-      chrome.runtime.sendMessage({message: 'End the timer!'}, function(response){
+      chrome.runtime.sendMessage({message: 'End the timer!', wasTabTableOn: true}, function(response){
         fillTable();
-      } );
+      });
     })
   }
 })
 called = true;
 
-
+// Fills the table in with the corresponding stored data
 function fillTable(){
   chrome.tabs.query({currentWindow : true}, function(arrayOfTabs){
     for(const tab of arrayOfTabs)
     {
+      // Title column of the table
       const row = tableBody.insertRow(-1)
+
       const cell1 = row.insertCell(0);
       cell1.innerHTML = tab.title;
       cell1.className = 'titleName';
 
+      // Last visited column of the table
       const cell2 = row.insertCell(1);
       cell2.innerHTML = "";
       cell2.className = 'lastOpened';
 
+      // Time elapsed column of the table
       const cell3 = row.insertCell(2);
       cell3.innerHTML = "";
       cell3.className = 'timeElapsed';
@@ -53,13 +55,6 @@ function fillTable(){
           cell3.innerHTML = '';
         }
       }) // end chrome.storage.local.get
-
-      // chrome.storage.local.get(null, function(results){
-      //   if(results.timeElapsed[tab.id] != undefined && results.timeElapsed[tab.id] != null){
-      //
-      //   }
-      // })
-
     }
   })
 }
@@ -93,19 +88,16 @@ document.getElementById('toggleInput2').addEventListener('change', function(){
 
     chrome.tabs.query({currentWindow: true}, function(arrayOfTabs){
       chrome.storage.local.get(null, function(results){
-        for(const tab of arrayOfTabs){
-          results.lastVisited[tab.id] = null;
-          chrome.storage.local.set({lastVisited: results.lastVisited});
-        }
+        results.lastVisited = {};
+        chrome.storage.local.set({lastVisited: results.lastVisited});
+        results.timeElapsed = {};
+        chrome.storage.local.set({timeElapsed: results.timeElapsed});
       })
     })
 
     while(table.rows.length > 1){
       table.deleteRow(1);
     }
-
-
-
   }
 })
 
@@ -140,21 +132,74 @@ function dateToString(dateObject){
 }
 // -----------------------------------------------------------------------------
 var table = document.getElementById('myTable');
-var row = table.rows[0]
-table.onclick = function(ev){
-  var index = ev.target.parentElement.rowIndex;
-  if(index != undefined){
-    if(document.getElementById('myTable').rows[index].style.backgroundColor == ''){
-      document.getElementById('myTable').rows[index].style.backgroundColor = '#ddd'
+var isMouseDown = null;
+var startDirection = null;
+var startingRow = null;
+let mY = 0;
+table.onmousedown = function(ev) {
+  if(ev.which == 1){
+    mY = ev.pageY;
+    isMouseDown = true;
+    let i = ev.target.parentElement.rowIndex;
+    if(table.rows[i] != undefined && i > 0 ){
+      unhighlightRows(table);
+      startingRow = i;
+      table.rows[i].classList.toggle('highlighted');
     }
-    else{
-      document.getElementById('myTable').rows[index].style.backgroundColor = '';
+    return false
+  }
+};
+
+table.onmouseup = function() {
+  startDirection = null;
+  isMouseDown = false;
+}
+
+let selectedArray = [];
+table.onmouseover = function(ev) {
+  // If user is still holding left click
+  if (isMouseDown == true) {
+    // If user is moving cursor up
+    if(ev.pageY < mY && startDirection == null){
+      startDirection = 1;
+    }
+    else if(ev.pageY > mY && startDirection == null){
+      startDirection = 0;
+    }
+
+    var index = ev.target.parentElement.rowIndex;
+    if (index != undefined && index > 0) {
+      unhighlightRows(table);
+      hightlightUntil(index, startDirection);
     }
   }
+};
+
+//---------------------------------------------------------------//
+function unhighlightRows(aTable){
+  if(table.getElementsByClassName('highlighted').length > 0){
+    while(table.getElementsByClassName('highlighted')[0]){
+      table.getElementsByClassName('highlighted')[0].classList.remove('highlighted');
+      }
+  }
 }
+
+function hightlightUntil(rowIndex, direction){
+  if(direction == 0){
+    for(let i = startingRow; i <= rowIndex; i++){
+      table.rows[i].classList.toggle('highlighted');
+    }
+  }
+  else if(direction == 1){
+    for(let i = startingRow; i >= rowIndex; i--){
+      table.rows[i].classList.toggle('highlighted');
+    }
+  }
+
+}
+
+//---------------------------------------------------------------//
 resizableGrid(table);
-
-
 function resizableGrid(table) {
  var row = table.getElementsByTagName('tr')[0],
  cols = row ? row.children : undefined;
@@ -194,7 +239,7 @@ function resizableGrid(table) {
    curCol = nxtCol = pageX = nxtColWidth =  curColWidth = undefined;
  });
 }
-
+//------------------------------------------------------------------------//
  function createDiv(height){
   var div = document.createElement('div');
   div.style.bottom = '1px';
@@ -207,23 +252,3 @@ function resizableGrid(table) {
   return div;
  }
 };
-//---------------------------------------------------------------------------------------------------------
-function highlight(){
-  alert('highlight')
-  let table = document.getElementById('myTable');
-  for(let i = 0; i < table.rows.length; i++){
-      table.rows[i].style.backgroundColor = '#ddd';
-  }
-}
-
-function unhighlight(){
-  alert('unhighlight')
-  let table = document.getElementById('myTable');
-  for(let i = 0; i < table.rows.length; i++){
-    table.rows[i].onclick = function(){
-      console.log("Row has been clicked2")
-      table.rows[i].style.backgroundColor = '#ddd';
-    }
-
-  }
-}
