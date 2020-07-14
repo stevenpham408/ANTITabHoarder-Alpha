@@ -124,7 +124,7 @@ function updateTimeElapsedOnTabChange(){
 					results.timeElapsed[current] = 0;
 				}
 
-				// Start a brand new timer for the current tab if it wasn't initialized
+				// Start a brand new timer for the current tab
 				startTime = start();
 				chrome.storage.local.set({timeElapsed: results.timeElapsed});
 
