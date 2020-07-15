@@ -1,16 +1,26 @@
 'use strict';
-import{ sec2time } from './modules/time.js';
+import {
+  sec2time
+} from './modules/time.js';
 const d = document.getElementById("Tester");
 let tableBody = document.getElementById("myTable_body");
 tableBody.innerHTML = '';
 var called = false;
 
-chrome.storage.local.get(null, function(results){
-  if(results.toggle2 == true){
-    chrome.tabs.query({currentWindow: true, active: true}, function(arrayTabs){
+chrome.storage.local.get(null, function(results) {
+  if (results.toggle2 == true) {
+    chrome.tabs.query({
+      currentWindow: true,
+      active: true
+    }, function(arrayTabs) {
       results.lastVisited[arrayTabs[0].id] = (new Date()).toJSON();
-      chrome.storage.local.set({lastVisited: results.lastVisited});
-      chrome.runtime.sendMessage({message: 'End the timer!', wasTabTableOn: true}, function(response){
+      chrome.storage.local.set({
+        lastVisited: results.lastVisited
+      });
+      chrome.runtime.sendMessage({
+        message: 'End the timer!',
+        wasTabTableOn: true
+      }, function(response) {
         fillTable();
       });
     })
@@ -19,10 +29,11 @@ chrome.storage.local.get(null, function(results){
 called = true;
 
 // Fills the table in with the corresponding stored data
-function fillTable(){
-  chrome.tabs.query({currentWindow : true}, function(arrayOfTabs){
-    for(const tab of arrayOfTabs)
-    {
+function fillTable() {
+  chrome.tabs.query({
+    currentWindow: true
+  }, function(arrayOfTabs) {
+    for (const tab of arrayOfTabs) {
       // Title column of the table
       const row = tableBody.insertRow(-1)
 
@@ -40,18 +51,16 @@ function fillTable(){
       cell3.innerHTML = "";
       cell3.className = 'timeElapsed';
 
-      chrome.storage.local.get(null, function(results){
-        if(results.lastVisited[tab.id] != undefined && results.lastVisited[tab.id] != null ){
+      chrome.storage.local.get(null, function(results) {
+        if (results.lastVisited[tab.id] != undefined && results.lastVisited[tab.id] != null) {
           cell2.innerHTML = dateToString(new Date(results.lastVisited[tab.id]));
-        }
-        else{
+        } else {
           cell2.innerHTML = '';
         }
 
-        if(results.timeElapsed[tab.id] != undefined && results.timeElapsed[tab.id] != null){
+        if (results.timeElapsed[tab.id] != undefined && results.timeElapsed[tab.id] != null) {
           cell3.innerHTML = sec2time(results.timeElapsed[tab.id]);
-        }
-        else{
+        } else {
           cell3.innerHTML = '';
         }
       }) // end chrome.storage.local.get
@@ -60,68 +69,81 @@ function fillTable(){
 }
 
 
-function logCurrentTab(){
-  chrome.storage.local.get(null, function(results){
-    chrome.tabs.query({currentWindow : true, active : true}, function(arrayOfTabs){
+function logCurrentTab() {
+  chrome.storage.local.get(null, function(results) {
+    chrome.tabs.query({
+      currentWindow: true,
+      active: true
+    }, function(arrayOfTabs) {
       let currentTab = arrayOfTabs[0];
       results.lastVisited[currentTab.id] = (new Date()).toJSON();
-      chrome.storage.local.set( {lastVisited: results.lastVisited} );
+      chrome.storage.local.set({
+        lastVisited: results.lastVisited
+      });
 
       results.timeElapsed[currentTab.id] = 0;
-      chrome.storage.local.set({timeElapsed: results.timeElapsed});
+      chrome.storage.local.set({
+        timeElapsed: results.timeElapsed
+      });
 
-      chrome.runtime.sendMessage({message: 'Start the timer!'});
+      chrome.runtime.sendMessage({
+        message: 'Start the timer!'
+      });
 
       fillTable();
     })
   })
 }
 
-document.getElementById('toggleInput2').addEventListener('change', function(){
-  if(document.getElementById('toggleInput2').checked == true){
+document.getElementById('toggleInput2').addEventListener('change', function() {
+  if (document.getElementById('toggleInput2').checked == true) {
     logCurrentTab();
-  }
-
-  else{
+  } else {
     called = false;
     let table = document.getElementById('myTable');
 
-    chrome.tabs.query({currentWindow: true}, function(arrayOfTabs){
-      chrome.storage.local.get(null, function(results){
+    chrome.tabs.query({
+      currentWindow: true
+    }, function(arrayOfTabs) {
+      chrome.storage.local.get(null, function(results) {
         results.lastVisited = {};
-        chrome.storage.local.set({lastVisited: results.lastVisited});
+        chrome.storage.local.set({
+          lastVisited: results.lastVisited
+        });
         results.timeElapsed = {};
-        chrome.storage.local.set({timeElapsed: results.timeElapsed});
+        chrome.storage.local.set({
+          timeElapsed: results.timeElapsed
+        });
       })
     })
 
-    while(table.rows.length > 1){
+    while (table.rows.length > 1) {
       table.deleteRow(1);
     }
   }
 })
 
-function dateToString(dateObject){
+function dateToString(dateObject) {
   const year = dateObject.getFullYear();
 
   const month = dateObject.getMonth() + 1;
   const day = dateObject.getDate();
   let hour = dateObject.getHours();
 
-  if(dateObject.getHours() < 10){
-     hour = "0" + dateObject.getHours();
+  if (dateObject.getHours() < 10) {
+    hour = "0" + dateObject.getHours();
   }
 
   let minutes = dateObject.getMinutes();
   let seconds = dateObject.getSeconds();
 
 
-  if(dateObject.getMinutes() < 10){
-     minutes = "0" + dateObject.getMinutes();
+  if (dateObject.getMinutes() < 10) {
+    minutes = "0" + dateObject.getMinutes();
   }
 
-  if(dateObject.getSeconds() < 10){
-     seconds = "0" + dateObject.getSeconds();
+  if (dateObject.getSeconds() < 10) {
+    seconds = "0" + dateObject.getSeconds();
   }
 
   const formattedDate = month + "/" + day + "/" + year;
@@ -137,11 +159,11 @@ var startDirection = null;
 var startingRow = null;
 let mY = 0;
 table.onmousedown = function(ev) {
-  if(ev.which == 1){
+  if (ev.which == 1) {
     mY = ev.pageY;
     isMouseDown = true;
     let i = ev.target.parentElement.rowIndex;
-    if(table.rows[i] != undefined && i > 0 ){
+    if (table.rows[i] != undefined && i > 0) {
       unhighlightRows(table);
       startingRow = i;
       table.rows[i].classList.toggle('highlighted');
@@ -160,10 +182,9 @@ table.onmouseover = function(ev) {
   // If user is still holding left click
   if (isMouseDown == true) {
     // If user is moving cursor up
-    if(ev.pageY < mY && startDirection == null){
+    if (ev.pageY < mY && startDirection == null) {
       startDirection = 1;
-    }
-    else if(ev.pageY > mY && startDirection == null){
+    } else if (ev.pageY > mY && startDirection == null) {
       startDirection = 0;
     }
 
@@ -176,22 +197,23 @@ table.onmouseover = function(ev) {
 };
 
 //---------------------------------------------------------------//
-function unhighlightRows(aTable){
-  if(table.getElementsByClassName('highlighted').length > 0){
-    while(table.getElementsByClassName('highlighted')[0]){
+function unhighlightRows(aTable) {
+  if (table.getElementsByClassName('highlighted').length > 0) {
+    while (table.getElementsByClassName('highlighted')[0]) {
       table.getElementsByClassName('highlighted')[0].classList.remove('highlighted');
-      }
+    }
   }
 }
 
-function hightlightUntil(rowIndex, direction){
-  if(direction == 0){
-    for(let i = startingRow; i <= rowIndex; i++){
-      table.rows[i].classList.toggle('highlighted');
+function hightlightUntil(rowIndex, direction) {
+  if (direction == 0) {
+    for (let i = startingRow; i <= rowIndex; i++) {
+      if(table.rows[i] != null || table.rows[i] != undefined){
+        table.rows[i].classList.toggle('highlighted');
+      }
     }
-  }
-  else if(direction == 1){
-    for(let i = startingRow; i >= rowIndex; i--){
+  } else if (direction == 1) {
+    for (let i = startingRow; i >= rowIndex; i--) {
       table.rows[i].classList.toggle('highlighted');
     }
   }
@@ -200,55 +222,56 @@ function hightlightUntil(rowIndex, direction){
 
 //---------------------------------------------------------------//
 resizableGrid(table);
+
 function resizableGrid(table) {
- var row = table.getElementsByTagName('tr')[0],
- cols = row ? row.children : undefined;
- if (!cols){
-   return;
- }
- var tableHeight = table.offsetHeight;
+  var row = table.getElementsByTagName('tr')[0],
+    cols = row ? row.children : undefined;
+  if (!cols) {
+    return;
+  }
+  var tableHeight = table.offsetHeight;
 
- for (var i=0;i<cols.length;i++){
-  var div = createDiv(tableHeight);
-  cols[i].appendChild(div);
-  cols[i].style.position = 'relative';
-  setListeners(div);
- }
-//---------------------------------------------------------------//
- function setListeners(div){
-  var pageX,curCol,nxtCol,curColWidth,nxtColWidth;
+  for (var i = 0; i < cols.length; i++) {
+    var div = createDiv(tableHeight);
+    cols[i].appendChild(div);
+    cols[i].style.position = 'relative';
+    setListeners(div);
+  }
+  //---------------------------------------------------------------//
+  function setListeners(div) {
+    var pageX, curCol, nxtCol, curColWidth, nxtColWidth;
 
-  div.addEventListener('mousedown', function (e) {
-   curCol = e.target.parentElement;
-   nxtCol = curCol.nextElementSibling;
-   pageX = e.pageX;
+    div.addEventListener('mousedown', function(e) {
+      curCol = e.target.parentElement;
+      nxtCol = curCol.nextElementSibling;
+      pageX = e.pageX;
 
-   curColWidth = curCol.offsetWidth;
-  });
+      curColWidth = curCol.offsetWidth;
+    });
 
-  document.addEventListener('mousemove', function (e) {
-    if (curCol) {
-      var diffX = e.pageX - pageX;
-      if((curColWidth + diffX > 30) && (curColWidth + diffX < 250)){
-        curCol.style.width = (curColWidth + diffX)+'px';
+    document.addEventListener('mousemove', function(e) {
+      if (curCol) {
+        var diffX = e.pageX - pageX;
+        if ((curColWidth + diffX > 30) && (curColWidth + diffX < 250)) {
+          curCol.style.width = (curColWidth + diffX) + 'px';
+        }
       }
-    }
-  });
+    });
 
- document.addEventListener('mouseup', function (e) {
-   curCol = nxtCol = pageX = nxtColWidth =  curColWidth = undefined;
- });
-}
-//------------------------------------------------------------------------//
- function createDiv(height){
-  var div = document.createElement('div');
-  div.style.bottom = '1px';
-  div.style.right = 0;
-  div.style.borderRight = '2px solid gray';
-  div.style.position = 'absolute';
-  div.style.cursor = 'col-resize';
-  div.style.userSelect = 'none';
-  div.style.height = '18px';
-  return div;
- }
+    document.addEventListener('mouseup', function(e) {
+      curCol = nxtCol = pageX = nxtColWidth = curColWidth = undefined;
+    });
+  }
+  //------------------------------------------------------------------------//
+  function createDiv(height) {
+    var div = document.createElement('div');
+    div.style.bottom = '1px';
+    div.style.right = 0;
+    div.style.borderRight = '2px solid gray';
+    div.style.position = 'absolute';
+    div.style.cursor = 'col-resize';
+    div.style.userSelect = 'none';
+    div.style.height = '18px';
+    return div;
+  }
 };

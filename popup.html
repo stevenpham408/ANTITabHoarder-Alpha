@@ -1,49 +1,53 @@
 <!DOCTYPE html>
 <html>
-  <head></head>
-  <body>
-    <link rel='stylesheet' type='text/css' href='styles.css'>
-    <header></header>
 
-    <section>
-      <label id = "fname_label" for="fname">Delete tabs after</label>
-      <input type="number" id="fname">
-      <select id = "unitOfTime">
+<head></head>
+
+<body>
+  <link rel='stylesheet' type='text/css' href='styles.css'>
+  <header></header>
+
+  <section>
+    <label id="fname_label" for="fname">Delete tabs after</label>
+    <input type="number" id="fname">
+    <select id="unitOfTime">
       <option value="min">min </option>
       <option value="hr">hr </option>
-      </select>
-      <label class="switch">
-        <input id = "toggleInput" type="checkbox">
-        <span class="slider"></span>
-      </label>
-    </section><hr id='hr1'>
+    </select>
+    <label class="switch">
+      <input id="toggleInput" type="checkbox">
+      <span class="slider"></span>
+    </label>
+  </section>
+  <hr id='hr1'>
 
-    <section class='Tab_Manager_Functionality'>
-      <label id = "TabManager_label">Enable Tab Manager</label>
-      <label id='tabManager_switch'>
-        <input id = "toggleInput2" type="checkbox">
-        <span class="slider"></span>
-      </label>
-  </section><hr id='hr2'>
+  <section class='Tab_Manager_Functionality'>
+    <label id="TabManager_label">Enable Tab Manager</label>
+    <label id='tabManager_switch'>
+      <input id="toggleInput2" type="checkbox">
+      <span class="slider"></span>
+    </label>
+  </section>
+  <hr id='hr2'>
 
-    <div class="tab_table">
-      <table id="myTable">
-        <thead id="myTable_head">
-          <th id='title'>Title</th>
-          <th>Last Opened</th>
-          <th>Time Spent</th>
-        </thead>
-        <tbody id="myTable_body"></tbody>
-      </table>
-    </div>
-    <script src="react-dom.development.js"></script>
-    <script src="react.development.js"></script>
-    <script src="popup.js"></script>
-    <!-- <script src="tabTable.js"></script> -->
+  <div class="tab_table">
+    <table id="myTable">
+      <!-- <thead id="myTable_head"> -->
+        <th id='title'>Title</th>
+        <th>Last Opened</th>
+        <th>Time Spent</th>
+      <!-- </thead> -->
+      <tbody id="myTable_body"></tbody>
+    </table>
+  </div>
+  <script src="react-dom.development.js"></script>
+  <script src="react.development.js"></script>
+  <script src="popup.js"></script>
+  <!-- <script src="tabTable.js"></script> -->
 
-  </body>
-  <script type="module" src="./modules/time.js"></script>
-  <script type="module" src="tabTable.js"></script>
+</body>
+<script type="module" src="./modules/time.js"></script>
+<script type="module" src="tabTable.js"></script>
 
 
 </html>
