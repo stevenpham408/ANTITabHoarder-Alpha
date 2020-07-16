@@ -1,4 +1,4 @@
-# ANTI-TabHoarder
+# ANTI-TabHoarder (Alpha version)
 ANTI-TabHoarder is a Google Chrome extension that aims to help tab hoarders control their hoarding and also to prevent them from relapsing into their hoarding ways.
 
 ## Functionality
