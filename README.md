@@ -13,9 +13,9 @@ The extension revolves around two main features: the Auto-Delete & the Tab Manag
 #### Auto-Delete
 The Auto-Delete feature acts as a preventative measure for tab hoarders. Once toggled on, tab hoarders will be able to input a certain amount of time in minutes or hours, in which newly created tabs will be deleted after the specified delay. 
 
-![](demo_gifs/AutoDelete 1.gif)
+![Auto Delete UI](demo_gifs/AutoDelete1.gif)
 
-![](demo_gifs/AutoDelete 2.gif)
+![Auto Delete Functionality](demo_gifs/AutoDelete2.gif)
 
 #### Tab Manager
 The Tab Manager, inspired by Window's Task Manager, was supposed to be an interactive table capable of resizing its columns, selecting & highlighting particular rows, and sorting each column by ascending or descending elements. Currently, the table displays the following information about tabs currently open in the window: title of the tab, the last visited date that the user viewed it, & the time elapsed that the user spent viewing it. Users will be able to select any number of tabs from the Tab Manager table & quickly dispose of the tabs based on the information given to them. 
