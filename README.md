@@ -17,8 +17,20 @@ Auto Delete UI:
 
 ![Auto Delete UI](demo/AutoDelete1.gif)
 
+
 Auto Delete Functionality Demonstration: 
+
 ![Auto Delete Functionality](demo/AutoDelete2.gif)
+
 
 #### Tab Manager
 The Tab Manager, inspired by Window's Task Manager, was supposed to be an interactive table capable of resizing its columns, selecting & highlighting particular rows, and sorting each column by ascending or descending elements. Currently, the table displays the following information about tabs currently open in the window: title of the tab, the last visited date that the user viewed it, & the time elapsed that the user spent viewing it. Users will be able to select any number of tabs from the Tab Manager table & quickly dispose of the tabs based on the information given to them. 
+
+Tab Manager UI: 
+
+![Tab Manager UI](demo/TabManager1.gif)
+
+
+Tab Manager Functionality Demonstration: 
+
+![Tab Manager Functionality](demo/TabManager2.gif)
