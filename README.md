@@ -14,6 +14,7 @@ The extension revolves around two main features: the Auto-Delete & the Tab Manag
 The Auto-Delete feature acts as a preventative measure for tab hoarders. Once toggled on, tab hoarders will be able to input a certain amount of time in minutes or hours, in which newly created tabs will be deleted after the specified delay. 
 
 Auto Delete UI: 
+
 ![Auto Delete UI](demo/AutoDelete1.gif)
 
 Auto Delete Functionality Demonstration: 
